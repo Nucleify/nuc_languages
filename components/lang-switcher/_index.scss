@@ -1,0 +1,36 @@
+.nuc-lang-switcher {
+  min-width: 100px;
+  height: 36px;
+  background: $content-background;
+  border: $primary-border $p-card-border;
+
+  &:hover {
+    border-color: $p-card-box-shadow;
+  }
+
+  .p-select-label {
+    display: flex;
+    align-items: center;
+    color: $white-text-color;
+    font-size: $font-size-xs;
+    overflow: visible;
+  }
+
+  .p-select-dropdown {
+    color: $primary-white-text-color;
+    font-size: $font-size-sm;
+
+    .p-icon {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  @media (min-width: $md) {
+    min-width: 120px;
+
+    .p-select-label {
+      font-size: $font-size-sm;
+    }
+  }
+}
