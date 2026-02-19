@@ -104,6 +104,10 @@
   "form-response-text": "Odpowiadamy osobiście",
   "form-response-badge": "W CIĄGU 8 GODZIN",
 
+  "thank-you-title": "Dziękujemy!",
+  "thank-you-message": "Twoja wiadomość została wysłana. Skontaktujemy się z Tobą w ciągu 8 godzin.",
+  "thank-you-back-home": "Wróć do strony głównej",
+
   "offer-badge": "ELASTYCZNE CENY",
   "offer-title": "Zainwestuj w swój",
   "offer-title-highlight": "cyfrowy sukces",
@@ -136,7 +140,9 @@
   "pricing-dialog-whats-included": "Co zawiera plan:",
   "pricing-dialog-everything-plus": "Wszystko z planu {plan}, plus:",
   "pricing-dialog-show-more-features": "Pokaż jeszcze {count} funkcji",
-  "pricing-dialog-proceed-payment": "Przejdź do płatności ->",
+  "pricing-dialog-proceed-payment": "Przejdź do płatności",
+  "pricing-dialog-contact-email": "Napisz do nas",
+  "pricing-dialog-email-header": "Skontaktuj się z nami",
   "pricing-dialog-monthly-note": "Minimalny okres zobowiązania to 6 miesięcy. Potem możesz anulować w każdej chwili.",
   "pricing-trust-moneyback": "30-dniowa gwarancja zwrotu",
   "pricing-trust-secure": "Bezpieczna płatność przez Stripe",
