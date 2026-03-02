@@ -3,6 +3,7 @@ import type { NuxtApp } from 'nuxt/app'
 import { NucLangSwitcher } from './components'
 import en from './locales/en.json'
 import pl from './locales/pl.json'
+import vn from './locales/vn.json'
 
 export function registerNucLanguages(nuxtApp: NuxtApp): void {
   nuxtApp.vueApp
@@ -16,9 +17,10 @@ export function registerNucLanguages(nuxtApp: NuxtApp): void {
 
     i18n.setLocaleMessage('en', en)
     i18n.setLocaleMessage('pl', pl)
+    i18n.setLocaleMessage('vn', vn)
 
     const lang = nuxtApp._route?.params?.lang as string | undefined
-    if (lang && ['en', 'pl'].includes(lang)) {
+    if (lang && ['en', 'pl', 'vn'].includes(lang)) {
       i18n.locale.value = lang
     }
   })
