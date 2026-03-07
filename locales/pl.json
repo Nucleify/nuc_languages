@@ -859,6 +859,7 @@
   "dock-files": "Pliki",
   "dock-calendar": "Kalendarz",
   "dock-activities": "Aktywności",
+  "dock-translations": "Tłumaczenia",
   "dock-settings": "Ustawienia",
   "dock-logout": "Wyloguj",
 
@@ -908,6 +909,19 @@
   "entity-technology-create": "Utwórz nową technologię",
   "entity-technology-edit": "Edytuj technologię",
   "entity-technology-delete": "Usunąć technologię?",
+  "translation-categories": "Kategorie",
+  "translation-search-placeholder": "Szukaj tłumaczeń...",
+  "translation-unsaved": "niezapisanych",
+  "translation-save-all": "Zapisz wszystko",
+  "translation-saved-single": "Zapisano: {key}",
+  "translation-saved-all": "Zapisano {count} tłumaczeń",
+  "translation-all": "Wszystkie",
+  "translation-total": "łącznie",
+  "entity-translation-manage": "Zarządzaj tłumaczeniami",
+  "entity-translation-new": "Nowe tłumaczenie",
+  "entity-translation-create": "Utwórz nowe tłumaczenie",
+  "entity-translation-edit": "Edytuj tłumaczenie",
+  "entity-translation-delete": "Usunąć tłumaczenie?",
 
   "column-id": "ID",
   "column-title": "Tytuł",
@@ -927,6 +941,9 @@
   "column-size": "Rozmiar",
   "column-created-at": "Data utworzenia",
   "column-updated-at": "Data aktualizacji",
+  "column-key": "Klucz",
+  "column-value": "Wartość",
+  "column-locale": "Język",
   "column-search-placeholder": "Szukaj po {column}",
 
   "settings-general": "Ogólne",
@@ -1039,6 +1056,9 @@
   "field-href": "Href",
   "field-src": "Źródło",
   "field-label": "Etykieta",
+  "field-locale": "Język",
+  "field-key": "Klucz",
+  "field-value": "Wartość",
 
   "datatable-paginator": "{first} do {last} z {totalRecords}",
 

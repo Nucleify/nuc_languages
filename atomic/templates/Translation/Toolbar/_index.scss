@@ -1,0 +1,85 @@
+.translation-manager {
+  &-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid $p-card-border;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &-locale {
+    &-tabs {
+      display: flex;
+      gap: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid $p-card-border;
+    }
+
+    &-tab {
+      padding: 0.5rem 1rem;
+      background: $bg-dark-color;
+      border: none;
+      cursor: pointer;
+      font-size: $font-size-sm;
+      color: $secondary-text-color;
+      transition: all 0.15s;
+      font-weight: 500;
+      font-family: $font-inter-sans-serif;
+
+      &:not(:last-child) {
+        border-right: 1px solid $p-card-border;
+      }
+
+      &:hover {
+        background: $bg-green-color-05;
+        color: $white-text-color;
+      }
+
+      &-active {
+        background: $primary-color;
+        color: #fff;
+
+        &:hover {
+          background: $primary-hover-color;
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  &-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &-changes-badge {
+    font-size: $font-size-xs;
+    color: #f59e0b;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: $md) {
+  .translation-manager {
+    &-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    &-locale {
+      &-tabs {
+        width: 100%;
+      }
+
+      &-tab {
+        flex: 1;
+        text-align: center;
+      }
+    }
+  }
+}

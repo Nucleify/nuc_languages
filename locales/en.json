@@ -860,6 +860,7 @@
   "dock-files": "Files",
   "dock-calendar": "Calendar",
   "dock-activities": "Activities",
+  "dock-translations": "Translations",
   "dock-settings": "Settings",
   "dock-logout": "Logout",
 
@@ -909,6 +910,19 @@
   "entity-technology-create": "Create new technology",
   "entity-technology-edit": "Edit technology",
   "entity-technology-delete": "Delete technology?",
+  "translation-categories": "Categories",
+  "translation-search-placeholder": "Search translations...",
+  "translation-unsaved": "unsaved",
+  "translation-save-all": "Save All",
+  "translation-saved-single": "Saved: {key}",
+  "translation-saved-all": "Saved {count} translations",
+  "translation-all": "All",
+  "translation-total": "total",
+  "entity-translation-manage": "Manage Translations",
+  "entity-translation-new": "New Translation",
+  "entity-translation-create": "Create new translation",
+  "entity-translation-edit": "Edit translation",
+  "entity-translation-delete": "Delete translation?",
 
   "column-id": "ID",
   "column-title": "Title",
@@ -928,6 +942,9 @@
   "column-size": "Size",
   "column-created-at": "Created At",
   "column-updated-at": "Updated At",
+  "column-key": "Key",
+  "column-value": "Value",
+  "column-locale": "Locale",
   "column-search-placeholder": "Search by {column}",
 
   "settings-general": "General",
@@ -1040,6 +1057,9 @@
   "field-href": "Href",
   "field-src": "Src",
   "field-label": "Label",
+  "field-locale": "Locale",
+  "field-key": "Key",
+  "field-value": "Value",
 
   "datatable-paginator": "{first} to {last} of {totalRecords}",
 

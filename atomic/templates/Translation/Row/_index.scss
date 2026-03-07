@@ -1,0 +1,83 @@
+.translation-manager {
+  &-row {
+    display: flex;
+    align-items: flex-start;
+    border-bottom: 1px solid $p-card-border;
+    transition: background-color 0.15s;
+
+    &:hover {
+      background: $bg-green-color-05;
+    }
+
+    &-changed {
+      background: rgba(#f59e0b, 0.06);
+
+      &:hover {
+        background: rgba(#f59e0b, 0.1);
+      }
+    }
+
+    &-key {
+      width: 280px;
+      min-width: 280px;
+      padding: 0.75rem 1.25rem;
+      border-right: 1px solid $p-card-border;
+      display: flex;
+      align-items: center;
+    }
+
+    &-value {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      min-width: 0;
+    }
+
+    &-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.5rem 0.75rem 0.5rem 0;
+      min-width: 70px;
+      justify-content: flex-end;
+    }
+
+    &-save,
+    &-reset {
+      height: 40px;
+      width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: $font-size-xs;
+
+      svg {
+        min-width: 1.5rem;
+        min-height: 1.5rem;
+      }
+    }
+  }
+
+  &-key-label {
+    font-size: $font-size-xs;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    color: $secondary-text-color;
+    word-break: break-word;
+  }
+
+  &-input {
+    width: 100%;
+  }
+}
+
+@media (max-width: $md) {
+  .translation-manager {
+    &-row-key {
+      width: 150px;
+      min-width: 150px;
+    }
+  }
+}
