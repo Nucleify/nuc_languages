@@ -7,6 +7,7 @@ use App\Resources\TranslationResource;
 use App\Traits\Setters\RequestSetterTrait;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class TranslationService
 {
@@ -105,6 +106,7 @@ class TranslationService
         $result->update($data);
 
         $this->logger->log('system', $result->getKey(), $this->entity, 'updated');
+        $this->triggerDeploy();
 
         return new TranslationResource($result->fresh());
     }
@@ -123,6 +125,8 @@ class TranslationService
             $updated[] = new TranslationResource($record->fresh());
         }
 
+        $this->triggerDeploy();
+
         return $updated;
     }
 
@@ -135,5 +139,24 @@ class TranslationService
         $result->delete();
 
         $this->logger->log('system', $result->getKey(), $this->entity, 'deleted');
+        $this->triggerDeploy();
+    }
+
+    private function triggerDeploy(): void
+    {
+        $token = env('NETLIFY_ACCESS_TOKEN');
+        $siteId = env('NETLIFY_SITE_ID');
+
+        if (!$token || !$siteId) {
+            return;
+        }
+
+        try {
+            Http::withToken($token)->post('https://api.netlify.com/api/v1/purge', [
+                'site_id' => $siteId,
+            ]);
+        } catch (\Throwable) {
+            // non-critical, don't break the API response
+        }
     }
 }

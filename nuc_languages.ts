@@ -3,12 +3,11 @@ import { useFetch } from 'nuxt/app'
 
 import { NucTranslationDashboard, NucTranslationPage } from './atomic'
 import { NucLangSwitcher } from './components'
-import en from './locales/en.json'
-import pl from './locales/pl.json'
-import vn from './locales/vn.json'
 
 const SUPPORTED_LOCALES = ['en', 'pl', 'vn'] as const
-const fallbackMessages: Record<string, Record<string, string>> = { en, pl, vn }
+const PAYLOAD_KEY = '_translations'
+
+type TranslationMessages = Record<string, Record<string, string>>
 
 async function fetchLocaleMessages(
   locale: string
@@ -20,6 +19,44 @@ async function fetchLocaleMessages(
   } catch {
     return null
   }
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: $i18n is provided by @nuxtjs/i18n
+function applyMessages(i18n: any, allMessages: TranslationMessages): void {
+  for (const locale of SUPPORTED_LOCALES) {
+    if (allMessages[locale]) {
+      i18n.setLocaleMessage(locale, allMessages[locale])
+    }
+  }
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: $i18n is provided by @nuxtjs/i18n
+async function fetchFreshTranslations(i18n: any): Promise<boolean> {
+  try {
+    const results = await Promise.all(
+      SUPPORTED_LOCALES.map(async (locale) => {
+        const messages = await $fetch<Record<string, string>>(
+          `${apiUrl()}/translations/locale/${locale}`,
+          { credentials: 'include' }
+        )
+        return { locale, messages }
+      })
+    )
+
+    const fresh: TranslationMessages = {}
+    for (const { locale, messages } of results) {
+      if (messages) {
+        fresh[locale] = messages
+      }
+    }
+    if (Object.keys(fresh).length > 0) {
+      applyMessages(i18n, fresh)
+      return true
+    }
+  } catch {
+    /* network error */
+  }
+  return false
 }
 
 export function registerNucLanguages(nuxtApp: NuxtApp): void {
@@ -36,10 +73,6 @@ export function registerNucLanguages(nuxtApp: NuxtApp): void {
     const i18n = nuxtApp.$i18n as any
     if (!i18n) return
 
-    for (const locale of SUPPORTED_LOCALES) {
-      i18n.setLocaleMessage(locale, fallbackMessages[locale])
-    }
-
     const lang = nuxtApp._route?.params?.lang as string | undefined
     if (
       lang &&
@@ -48,16 +81,45 @@ export function registerNucLanguages(nuxtApp: NuxtApp): void {
       i18n.locale.value = lang
     }
 
-    const fetched = await Promise.all(
-      SUPPORTED_LOCALES.map(async (locale) => ({
-        locale,
-        messages: await fetchLocaleMessages(locale),
-      }))
-    )
+    if (import.meta.dev) {
+      const [en, pl, vn] = await Promise.all([
+        import('./locales/en.json'),
+        import('./locales/pl.json'),
+        import('./locales/vn.json'),
+      ])
+      applyMessages(i18n, { en: en.default, pl: pl.default, vn: vn.default })
+    }
 
-    for (const { locale, messages } of fetched) {
-      if (messages) {
-        i18n.setLocaleMessage(locale, messages)
+    if (import.meta.server) {
+      const allMessages: TranslationMessages = {}
+
+      const fetched = await Promise.all(
+        SUPPORTED_LOCALES.map(async (locale) => ({
+          locale,
+          messages: await fetchLocaleMessages(locale),
+        }))
+      )
+
+      for (const { locale, messages } of fetched) {
+        if (messages) {
+          allMessages[locale] = messages
+        }
+      }
+
+      applyMessages(i18n, allMessages)
+      nuxtApp.payload[PAYLOAD_KEY] = allMessages
+    }
+
+    if (import.meta.client) {
+      const fetched = await fetchFreshTranslations(i18n)
+
+      if (!fetched) {
+        const payloadMessages = nuxtApp.payload?.[PAYLOAD_KEY] as
+          | TranslationMessages
+          | undefined
+        if (payloadMessages && Object.keys(payloadMessages).length > 0) {
+          applyMessages(i18n, payloadMessages)
+        }
       }
     }
   })
