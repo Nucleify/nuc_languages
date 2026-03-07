@@ -6,13 +6,8 @@ import type {
   NucTranslationObjectInterface,
   NucTranslationRequestsInterface,
   UseLoadingInterface,
-} from 'atomic'
-import {
-  apiHandle,
-  sessionStorageGetItem,
-  useApiSuccess,
-  useLoading,
-} from 'atomic'
+} from 'nucleify'
+import { apiHandle, useApiSuccess, useLoading } from 'nucleify'
 
 export function translationRequests(
   close?: CloseDialogType

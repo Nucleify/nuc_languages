@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 
-import type { NucTranslationObjectInterface } from 'atomic'
+import type { NucTranslationObjectInterface } from 'nucleify'
 
 export function useTranslationEdit() {
   const editValues = ref<Record<number, string>>({})

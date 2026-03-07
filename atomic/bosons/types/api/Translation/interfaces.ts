@@ -6,7 +6,7 @@ import type {
   LoadingRefType,
   NucTranslationObjectInterface,
   StoreEntityRequestType,
-} from 'atomic'
+} from 'nucleify'
 
 export interface NucTranslationRequestsInterface {
   results: EntityResultsType<NucTranslationObjectInterface>

@@ -1,8 +1,8 @@
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 
-import type { NucTranslationObjectInterface } from 'atomic'
-import { apiRequest } from 'atomic'
+import type { NucTranslationObjectInterface } from 'nucleify'
+import { apiRequest } from 'nucleify'
 
 import type { CategoryItem, PaginatedResponse } from '../types'
 

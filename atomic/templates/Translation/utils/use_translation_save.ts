@@ -2,8 +2,8 @@ import type { Ref } from 'vue'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { NucTranslationObjectInterface } from 'atomic'
-import { apiHandle, useAtomicToast } from 'atomic'
+import type { NucTranslationObjectInterface } from 'nucleify'
+import { apiHandle, useAtomicToast } from 'nucleify'
 
 export function useTranslationSave(
   editValues: Ref<Record<number, string>>,

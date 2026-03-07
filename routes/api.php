@@ -24,6 +24,9 @@ Route::middleware(['web'])->prefix('api')->group(function (): void {
             Route::put('/batch', 'batchUpdate')
                 ->name('translations.batchUpdate');
 
+            Route::post('/batch', 'batchUpdate')
+                ->name('translations.batchUpdate.post');
+
             Route::put('/{id}', 'update')
                 ->name('translations.update');
 

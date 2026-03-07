@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import type { NucTranslationObjectInterface } from 'atomic'
+import type { NucTranslationObjectInterface } from 'nucleify'
 
 defineProps<{
   item: NucTranslationObjectInterface

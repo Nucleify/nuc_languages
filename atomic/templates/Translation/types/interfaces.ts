@@ -1,4 +1,4 @@
-import type { NucTranslationObjectInterface } from 'atomic'
+import type { NucTranslationObjectInterface } from 'nucleify'
 
 export interface CategoryItem {
   name: string
