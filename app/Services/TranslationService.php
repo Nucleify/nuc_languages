@@ -148,15 +148,22 @@ class TranslationService
         $siteId = env('NETLIFY_SITE_ID');
 
         if (!$token || !$siteId) {
+            \Log::warning('Netlify purge skipped: missing NETLIFY_ACCESS_TOKEN or NETLIFY_SITE_ID');
+
             return;
         }
 
         try {
-            Http::withToken($token)->post('https://api.netlify.com/api/v1/purge', [
+            $response = Http::withToken($token)->post('https://api.netlify.com/api/v1/purge', [
                 'site_id' => $siteId,
             ]);
-        } catch (\Throwable) {
-            // non-critical, don't break the API response
+
+            \Log::info('Netlify purge response', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Netlify purge failed', ['error' => $e->getMessage()]);
         }
     }
 }
