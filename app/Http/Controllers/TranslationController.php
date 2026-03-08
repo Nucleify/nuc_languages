@@ -23,7 +23,7 @@ class TranslationController extends Controller
         try {
             $result = $this->service->index($request);
 
-            return response()->json($result);
+            return $this->noStore(response()->json($result));
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -34,7 +34,7 @@ class TranslationController extends Controller
         try {
             $result = $this->service->categories($locale);
 
-            return response()->json($result);
+            return $this->noStore(response()->json($result));
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -45,7 +45,7 @@ class TranslationController extends Controller
         try {
             $result = $this->service->getByLocale($locale);
 
-            return response()->json($result);
+            return $this->noStore(response()->json($result));
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -56,7 +56,7 @@ class TranslationController extends Controller
         try {
             $result = $this->service->show($id);
 
-            return response()->json($result);
+            return $this->noStore(response()->json($result));
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -124,5 +124,12 @@ class TranslationController extends Controller
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    private function noStore(JsonResponse $response): JsonResponse
+    {
+        return $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 }

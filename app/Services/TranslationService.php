@@ -153,9 +153,7 @@ class TranslationService
             ->groupBy('locale');
 
         $phpDirectory = base_path('modules/nuc_languages/database/translations');
-        $jsonDirectory = base_path('modules/nuc_languages/locales');
         File::ensureDirectoryExists($phpDirectory);
-        File::ensureDirectoryExists($jsonDirectory);
         $activeLocales = [];
 
         foreach ($translations as $locale => $items) {
@@ -165,11 +163,9 @@ class TranslationService
             $activeLocales[] = (string) $locale;
 
             $this->writePhpTranslations($phpDirectory, (string) $locale, $messages);
-            $this->writeJsonTranslations($jsonDirectory, (string) $locale, $messages);
         }
 
         $this->deleteStaleLocaleFiles($phpDirectory, 'php', $activeLocales);
-        $this->deleteStaleLocaleFiles($jsonDirectory, 'json', $activeLocales);
     }
 
     /**
@@ -190,38 +186,6 @@ class TranslationService
         $lines[] = '';
 
         File::put("{$directory}/{$locale}.php", implode(PHP_EOL, $lines));
-    }
-
-    /**
-     * @param array<string, string> $messages
-     */
-    private function writeJsonTranslations(string $directory, string $locale, array $messages): void
-    {
-        $json = json_encode(
-            $messages,
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-        );
-
-        if ($json === false) {
-            return;
-        }
-
-        File::put(
-            "{$directory}/{$locale}.json",
-            $this->jsonWithTwoSpaceIndent($json) . PHP_EOL
-        );
-    }
-
-    private function jsonWithTwoSpaceIndent(string $json): string
-    {
-        return preg_replace_callback('/^( +)/m', function (array $matches): string {
-            $indentLength = strlen($matches[1]);
-            if ($indentLength === 0) {
-                return '';
-            }
-
-            return str_repeat(' ', (int) floor($indentLength / 2));
-        }, $json) ?? $json;
     }
 
     /**

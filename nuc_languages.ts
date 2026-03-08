@@ -1,21 +1,31 @@
+import { useState } from 'nuxt/app'
 import type { NuxtApp } from 'nuxt/app'
-import { useFetch } from 'nuxt/app'
 
 import { NucTranslationDashboard, NucTranslationPage } from './atomic'
 import { NucLangSwitcher } from './components'
 
 const SUPPORTED_LOCALES = ['en', 'pl', 'vn'] as const
-const PAYLOAD_KEY = '_translations'
+const STATE_KEY = '_translations'
 
 type TranslationMessages = Record<string, Record<string, string>>
+
+function buildTranslationsUrl(locale: string): string {
+  const separator = apiUrl().includes('?') ? '&' : '?'
+  return `${apiUrl()}/translations/locale/${locale}${separator}t=${Date.now()}`
+}
 
 async function fetchLocaleMessages(
   locale: string
 ): Promise<Record<string, string> | null> {
   try {
-    const url = `${apiUrl()}/translations/locale/${locale}`
-    const { data } = await useFetch<Record<string, string>>(url)
-    return data.value
+    return await $fetch<Record<string, string>>(buildTranslationsUrl(locale), {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache',
+        Pragma: 'no-cache',
+      },
+      credentials: 'include',
+    })
   } catch {
     return null
   }
@@ -31,13 +41,20 @@ function applyMessages(i18n: any, allMessages: TranslationMessages): void {
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: $i18n is provided by @nuxtjs/i18n
-async function fetchFreshTranslations(i18n: any): Promise<boolean> {
+async function fetchFreshTranslations(i18n: any): Promise<void> {
   try {
     const results = await Promise.all(
       SUPPORTED_LOCALES.map(async (locale) => {
         const messages = await $fetch<Record<string, string>>(
-          `${apiUrl()}/translations/locale/${locale}`,
-          { credentials: 'include' }
+          buildTranslationsUrl(locale),
+          {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache',
+              Pragma: 'no-cache',
+            },
+            credentials: 'include',
+          }
         )
         return { locale, messages }
       })
@@ -51,12 +68,10 @@ async function fetchFreshTranslations(i18n: any): Promise<boolean> {
     }
     if (Object.keys(fresh).length > 0) {
       applyMessages(i18n, fresh)
-      return true
     }
-  } catch {
+  } catch (_err) {
     /* network error */
   }
-  return false
 }
 
 export function registerNucLanguages(nuxtApp: NuxtApp): void {
@@ -73,21 +88,15 @@ export function registerNucLanguages(nuxtApp: NuxtApp): void {
     const i18n = nuxtApp.$i18n as any
     if (!i18n) return
 
+    // useState persists through SSR→client hydration regardless of payloadExtraction setting
+    const translationState = useState<TranslationMessages>(STATE_KEY, () => ({}))
+
     const lang = nuxtApp._route?.params?.lang as string | undefined
     if (
       lang &&
       SUPPORTED_LOCALES.includes(lang as (typeof SUPPORTED_LOCALES)[number])
     ) {
       i18n.locale.value = lang
-    }
-
-    if (import.meta.dev) {
-      const [en, pl, vn] = await Promise.all([
-        import('./locales/en.json'),
-        import('./locales/pl.json'),
-        import('./locales/vn.json'),
-      ])
-      applyMessages(i18n, { en: en.default, pl: pl.default, vn: vn.default })
     }
 
     if (import.meta.server) {
@@ -106,21 +115,18 @@ export function registerNucLanguages(nuxtApp: NuxtApp): void {
         }
       }
 
+      translationState.value = allMessages
       applyMessages(i18n, allMessages)
-      nuxtApp.payload[PAYLOAD_KEY] = allMessages
     }
 
     if (import.meta.client) {
-      const fetched = await fetchFreshTranslations(i18n)
-
-      if (!fetched) {
-        const payloadMessages = nuxtApp.payload?.[PAYLOAD_KEY] as
-          | TranslationMessages
-          | undefined
-        if (payloadMessages && Object.keys(payloadMessages).length > 0) {
-          applyMessages(i18n, payloadMessages)
-        }
+      // Apply SSR translations immediately (synchronous) — eliminates flash
+      if (Object.keys(translationState.value).length > 0) {
+        applyMessages(i18n, translationState.value)
       }
+
+      // Refresh from API in background (non-blocking)
+      fetchFreshTranslations(i18n).catch((_err) => void _err)
     }
   })
 }

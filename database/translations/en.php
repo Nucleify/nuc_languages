@@ -494,7 +494,7 @@ return [
     'modules-structural' => 'Structural',
     'modules-technology' => 'Technology',
     'nav-docs' => 'Docs',
-    'nav-home' => 'adsadsda',
+    'nav-home' => 'Home',
     'nav-login' => 'Login',
     'nav-offer' => 'Offer',
     'notifications-account-updates' => 'Account Updates',
