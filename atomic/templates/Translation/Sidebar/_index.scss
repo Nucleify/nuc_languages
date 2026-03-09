@@ -1,0 +1,98 @@
+.translation-manager {
+  &-sidebar {
+    width: 240px;
+    min-width: 240px;
+    border-right: 1px solid $p-card-border;
+    display: flex;
+    flex-direction: column;
+    background: $bg-dark-color;
+    overflow: hidden;
+
+    &-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid $p-card-border;
+
+      h3 {
+        margin: 0;
+        font-size: $font-size-xs;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: $secondary-text-color;
+      }
+    }
+  }
+
+  &-search {
+    padding: 0.75rem;
+    border-bottom: 1px solid $p-card-border;
+
+    &-input {
+      width: 100%;
+    }
+  }
+
+  &-category {
+    &-list {
+      list-style: none;
+      margin: 0;
+      padding: 0.5rem 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      flex: 1;
+      min-height: 0;
+    }
+
+    &-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1.25rem;
+      cursor: pointer;
+      transition: background-color 0.15s;
+      font-size: $font-size-sm;
+      color: $white-text-color;
+
+      &:hover {
+        background: $bg-green-color-05;
+      }
+
+      &-active {
+        background: $primary-selected-color;
+        color: $primary-color;
+        font-weight: 600;
+
+        .translation-manager-category-count {
+          background: $primary-color;
+          color: #fff;
+        }
+      }
+    }
+
+    &-name {
+      text-transform: capitalize;
+    }
+
+    &-count {
+      font-size: $font-size-xs;
+      background: rgba($secondary-gray-color, 0.2);
+      color: $secondary-text-color;
+      padding: 0.125rem 0.5rem;
+      border-radius: 10px;
+      min-width: 28px;
+      text-align: center;
+    }
+  }
+}
+
+@media (max-width: $md) {
+  .translation-manager {
+    &-sidebar {
+      width: 100%;
+      min-width: 100%;
+      max-height: 300px;
+      border-right: none;
+      border-bottom: 1px solid $p-card-border;
+    }
+  }
+}
