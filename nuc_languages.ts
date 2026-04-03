@@ -9,6 +9,27 @@ const STATE_KEY = '_translations'
 
 type TranslationMessages = Record<string, Record<string, string>>
 
+type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
+
+function isSupportedLocale(code: string): code is SupportedLocale {
+  return (SUPPORTED_LOCALES as readonly string[]).includes(code)
+}
+
+function resolveActiveLocale(
+  nuxtApp: NuxtApp,
+  i18n: { locale: { value: string } }
+): SupportedLocale {
+  const fromRoute = nuxtApp._route?.params?.lang as string | undefined
+  if (fromRoute && isSupportedLocale(fromRoute)) {
+    return fromRoute
+  }
+  const current = i18n.locale?.value
+  if (current && isSupportedLocale(current)) {
+    return current
+  }
+  return 'en'
+}
+
 function buildTranslationsUrl(locale: string): string {
   const separator = apiUrl().includes('?') ? '&' : '?'
   return `${apiUrl()}/translations/locale/${locale}${separator}t=${Date.now()}`
@@ -95,29 +116,17 @@ export function registerNucLanguages(nuxtApp: NuxtApp): void {
     )
 
     const lang = nuxtApp._route?.params?.lang as string | undefined
-    if (
-      lang &&
-      SUPPORTED_LOCALES.includes(lang as (typeof SUPPORTED_LOCALES)[number])
-    ) {
+    if (lang && isSupportedLocale(lang)) {
       i18n.locale.value = lang
     }
 
     if (import.meta.server) {
+      const activeLocale = resolveActiveLocale(nuxtApp, i18n)
+      const messages = await fetchLocaleMessages(activeLocale)
       const allMessages: TranslationMessages = {}
-
-      const fetched = await Promise.all(
-        SUPPORTED_LOCALES.map(async (locale) => ({
-          locale,
-          messages: await fetchLocaleMessages(locale),
-        }))
-      )
-
-      for (const { locale, messages } of fetched) {
-        if (messages) {
-          allMessages[locale] = messages
-        }
+      if (messages) {
+        allMessages[activeLocale] = messages
       }
-
       translationState.value = allMessages
       applyMessages(i18n, allMessages)
     }
