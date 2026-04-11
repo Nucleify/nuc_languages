@@ -23,7 +23,9 @@
         ]"
         @click="$emit('select', '')"
       >
-        <span class="translation-manager-category-name">{{ t('translation-all') }}</span>
+        <span class="translation-manager-category-name"
+          >{{ t('translation-all') }}</span
+        >
         <span class="translation-manager-category-count">{{ totalCount }}</span>
       </li>
       <li

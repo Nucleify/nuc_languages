@@ -46,4 +46,3 @@ async function switchLanguage(newLang: string): Promise<void> {
 <style lang="scss">
 @import 'index';
 </style>
-
