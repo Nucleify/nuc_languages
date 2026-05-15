@@ -8,6 +8,13 @@ import type { CategoryItem, PaginatedResponse } from '../types'
 
 export const PER_PAGE = 100
 
+/** Gateway zwraca `{ data: T }` — spójnie z `apiHandle`. */
+function unwrapApiBody<T>(raw: unknown): T | undefined {
+  if (raw && typeof raw === 'object' && 'data' in raw)
+    return (raw as { data: T }).data
+  return raw as T
+}
+
 export function useTranslationFetch(
   initItems: (items: NucTranslationObjectInterface[]) => void
 ) {
@@ -42,12 +49,13 @@ export function useTranslationFetch(
     loadingRows.value = true
 
     try {
-      const response = (await apiRequest(buildUrl())) as PaginatedResponse
+      const raw = await apiRequest(buildUrl())
+      const response = unwrapApiBody<PaginatedResponse>(raw)
 
-      rows.value = response.data ?? []
-      currentPage.value = response.current_page ?? 1
-      lastPage.value = response.last_page ?? 1
-      totalRows.value = response.total ?? rows.value.length
+      rows.value = response?.data ?? []
+      currentPage.value = response?.current_page ?? 1
+      lastPage.value = response?.last_page ?? 1
+      totalRows.value = response?.total ?? rows.value.length
 
       initItems(rows.value)
     } catch {
@@ -59,11 +67,11 @@ export function useTranslationFetch(
 
   async function fetchCategories(): Promise<void> {
     try {
-      const response = (await apiRequest(
+      const raw = await apiRequest(
         `${apiUrl()}/translations/categories/${activeLocale.value}`
-      )) as CategoryItem[]
-
-      categories.value = response
+      )
+      const list = unwrapApiBody<CategoryItem[]>(raw)
+      categories.value = Array.isArray(list) ? list : []
     } catch {
       categories.value = []
     }

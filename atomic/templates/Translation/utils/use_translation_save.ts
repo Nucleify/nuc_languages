@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { NucTranslationObjectInterface } from 'nucleify'
-import { apiHandle, useAtomicToast } from 'nucleify'
+import { apiHandle, refreshTranslationMessages, useAtomicToast } from 'nucleify'
 
 export function useTranslationSave(
   editValues: Ref<Record<number, string>>,
@@ -27,7 +27,8 @@ export function useTranslationSave(
       method: 'PUT',
       id: item.id,
       data: { value: editValues.value[item.id] },
-      onSuccess: () => {
+      onSuccess: async () => {
+        await refreshTranslationMessages()
         originalValues.value[item.id!] = editValues.value[item.id!]
         savingIds.value.delete(item.id!)
         flashToast?.(
@@ -58,7 +59,8 @@ export function useTranslationSave(
       url: apiUrl() + '/translations/batch',
       method: 'PUT',
       data: { items },
-      onSuccess: () => {
+      onSuccess: async () => {
+        await refreshTranslationMessages()
         for (const item of items) {
           originalValues.value[item.id] = item.value
         }

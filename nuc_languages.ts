@@ -1,5 +1,5 @@
 import type { NuxtApp } from 'nuxt/app'
-import { useState } from 'nuxt/app'
+import { useNuxtApp, useState } from 'nuxt/app'
 
 import { NucTranslationDashboard, NucTranslationPage } from './atomic'
 import { NucLangSwitcher } from './components'
@@ -35,11 +35,56 @@ function buildTranslationsUrl(locale: string): string {
   return `${apiUrl()}/translations/locale/${locale}${separator}t=${Date.now()}`
 }
 
+function normalizeTranslationPayload(
+  raw: unknown
+): Record<string, string> | null {
+  if (!raw || typeof raw !== 'object') return null
+  const wrapped = raw as { data?: unknown }
+  const payload = wrapped.data !== undefined ? wrapped.data : raw
+
+  if (Array.isArray(payload)) {
+    const out: Record<string, string> = {}
+    for (const row of payload) {
+      if (!row || typeof row !== 'object') continue
+      const { key, value } = row as { key?: unknown; value?: unknown }
+      if (typeof key === 'string' && value != null) out[key] = String(value)
+    }
+    return Object.keys(out).length > 0 ? out : null
+  }
+
+  if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+    const out: Record<string, string> = {}
+    for (const [k, v] of Object.entries(payload as Record<string, unknown>)) {
+      if (typeof v === 'string') out[k] = v
+    }
+    return Object.keys(out).length > 0 ? out : null
+  }
+
+  return null
+}
+
+/**
+ * Instancja z `getLocaleMessage` / `setLocaleMessage` bywa na `global` (wrapper vue-i18n),
+ * a nie na samym `nuxtApp.$i18n`. Wybieramy `global`, jeśli ma te metody — bez polegania wyłącznie na `mode`.
+ */
+function getI18nTarget(nuxtI18n: unknown): unknown {
+  if (nuxtI18n == null || typeof nuxtI18n !== 'object') return nuxtI18n
+  const g = (nuxtI18n as { global?: unknown }).global
+  if (
+    g != null &&
+    typeof g === 'object' &&
+    typeof (g as { getLocaleMessage?: unknown }).getLocaleMessage === 'function'
+  ) {
+    return g
+  }
+  return nuxtI18n
+}
+
 async function fetchLocaleMessages(
   locale: string
 ): Promise<Record<string, string> | null> {
   try {
-    return await $fetch<Record<string, string>>(buildTranslationsUrl(locale), {
+    const raw = await $fetch<unknown>(buildTranslationsUrl(locale), {
       cache: 'no-store',
       headers: {
         'Cache-Control': 'no-cache',
@@ -47,52 +92,108 @@ async function fetchLocaleMessages(
       },
       credentials: 'include',
     })
+    return normalizeTranslationPayload(raw)
   } catch {
     return null
   }
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: $i18n is provided by @nuxtjs/i18n
-function applyMessages(i18n: any, allMessages: TranslationMessages): void {
+type I18nMessageTarget = {
+  setLocaleMessage: (locale: string, msg: Record<string, string>) => void
+}
+
+function asI18nMessageTarget(nuxtI18n: unknown): I18nMessageTarget | null {
+  const i18n = getI18nTarget(nuxtI18n)
+  if (
+    !i18n ||
+    typeof i18n !== 'object' ||
+    typeof (i18n as I18nMessageTarget).setLocaleMessage !== 'function'
+  ) {
+    return null
+  }
+  return i18n as I18nMessageTarget
+}
+
+/** Ustawia słowniki i18n wyłącznie z bazy (bez fallbacku do plików locale). */
+function applyDbMessagesToI18n(
+  nuxtI18n: unknown,
+  allMessages: TranslationMessages
+): void {
+  const i18n = asI18nMessageTarget(nuxtI18n)
+  if (!i18n) return
   for (const locale of SUPPORTED_LOCALES) {
-    if (allMessages[locale]) {
-      i18n.setLocaleMessage(locale, allMessages[locale])
-    }
+    const msgs = allMessages[locale]
+    if (!msgs || Object.keys(msgs).length === 0) continue
+    i18n.setLocaleMessage(locale, msgs)
   }
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: $i18n is provided by @nuxtjs/i18n
-async function fetchFreshTranslations(i18n: any): Promise<void> {
+async function fetchFreshTranslations(
+  nuxtI18n: unknown,
+  locale: SupportedLocale,
+  options?: { persistState?: boolean }
+): Promise<void> {
   try {
-    const results = await Promise.all(
-      SUPPORTED_LOCALES.map(async (locale) => {
-        const messages = await $fetch<Record<string, string>>(
-          buildTranslationsUrl(locale),
-          {
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache',
-              Pragma: 'no-cache',
-            },
-            credentials: 'include',
-          }
+    const raw = await $fetch<unknown>(buildTranslationsUrl(locale), {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache',
+        Pragma: 'no-cache',
+      },
+      credentials: 'include',
+    })
+    const messages = normalizeTranslationPayload(raw)
+    if (messages) {
+      const fresh: TranslationMessages = { [locale]: messages }
+      applyDbMessagesToI18n(nuxtI18n, fresh)
+      if (options?.persistState && import.meta.client) {
+        const translationState = useState<TranslationMessages>(
+          STATE_KEY,
+          () => ({})
         )
-        return { locale, messages }
-      })
-    )
-
-    const fresh: TranslationMessages = {}
-    for (const { locale, messages } of results) {
-      if (messages) {
-        fresh[locale] = messages
+        translationState.value = {
+          ...translationState.value,
+          ...fresh,
+        }
       }
-    }
-    if (Object.keys(fresh).length > 0) {
-      applyMessages(i18n, fresh)
     }
   } catch (_err) {
     /* network error */
   }
+}
+
+async function refreshOneLocaleFromDb(
+  nuxtI18n: unknown,
+  locale: SupportedLocale,
+  options?: { persistState?: boolean }
+): Promise<void> {
+  const messages = await fetchLocaleMessages(locale)
+  if (!messages) return
+  const fresh: TranslationMessages = { [locale]: messages }
+  applyDbMessagesToI18n(nuxtI18n, fresh)
+  if (options?.persistState && import.meta.client) {
+    const translationState = useState<TranslationMessages>(
+      STATE_KEY,
+      () => ({})
+    )
+    translationState.value = {
+      ...translationState.value,
+      ...fresh,
+    }
+  }
+}
+
+/**
+ * Po zapisie tłumaczeń w panelu — przeładuj słowniki i18n z API (inaczej `$t` zostaje przy starych / pustych wpisach i widać klucz).
+ */
+export async function refreshTranslationMessages(): Promise<void> {
+  if (import.meta.server) return
+  const nuxtApp = useNuxtApp()
+  if (!nuxtApp.$i18n) return
+  // biome-ignore lint/suspicious/noExplicitAny: $i18n from @nuxtjs/i18n
+  const i18n = nuxtApp.$i18n as any
+  const locale = resolveActiveLocale(nuxtApp, i18n)
+  await fetchFreshTranslations(nuxtApp.$i18n, locale, { persistState: true })
 }
 
 export function registerNucLanguages(nuxtApp: NuxtApp): void {
@@ -103,6 +204,23 @@ export function registerNucLanguages(nuxtApp: NuxtApp): void {
     .component('nuc-translation-dashboard', NucTranslationDashboard as any)
     // biome-ignore lint/suspicious/noExplicitAny: nuxtApp.vueApp is a Vue app
     .component('nuc-translation-page', NucTranslationPage as any)
+
+  /** Po zmianie języka dociągnij świeży słownik dla locale, żeby nie wisiały stare wartości. */
+  // @ts-expect-error — hook z @nuxtjs/i18n, nie ma go w domyślnych HookKeys Nuxt
+  nuxtApp.hook('i18n:localeSwitched', (payload: unknown) => {
+    if (import.meta.server) return
+    const newLocale =
+      payload &&
+      typeof payload === 'object' &&
+      'newLocale' in payload &&
+      typeof (payload as { newLocale?: unknown }).newLocale === 'string'
+        ? (payload as { newLocale: string }).newLocale
+        : ''
+    if (!isSupportedLocale(newLocale)) return
+    refreshOneLocaleFromDb(nuxtApp.$i18n, newLocale, {
+      persistState: true,
+    }).catch((_err) => void _err)
+  })
 
   nuxtApp.hook('app:created', async () => {
     // biome-ignore lint/suspicious/noExplicitAny: $i18n is provided by @nuxtjs/i18n
@@ -128,17 +246,20 @@ export function registerNucLanguages(nuxtApp: NuxtApp): void {
         allMessages[activeLocale] = messages
       }
       translationState.value = allMessages
-      applyMessages(i18n, allMessages)
+      applyDbMessagesToI18n(i18n, allMessages)
     }
 
     if (import.meta.client) {
       // Apply SSR translations immediately (synchronous) — eliminates flash
       if (Object.keys(translationState.value).length > 0) {
-        applyMessages(i18n, translationState.value)
+        applyDbMessagesToI18n(i18n, translationState.value)
       }
 
-      // Refresh from API in background (non-blocking)
-      fetchFreshTranslations(i18n).catch((_err) => void _err)
+      // Refresh from API in background (non-blocking); persist so useState matches i18n
+      const activeLocale = resolveActiveLocale(nuxtApp, i18n)
+      fetchFreshTranslations(i18n, activeLocale, { persistState: true }).catch(
+        (_err) => void _err
+      )
     }
   })
 }
