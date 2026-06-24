@@ -1,0 +1,125 @@
+#translations {
+  height: 100vh;
+  overflow: hidden;
+
+  .panel-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+
+    @media (width >= $md) {
+      flex-direction: row;
+    }
+  }
+}
+
+.translation-manager {
+  &-content {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  &-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 3rem;
+    color: $secondary-text-color;
+    font-size: $font-size-sm;
+  }
+
+  &-rows {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0;
+  }
+
+  &-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: $secondary-text-color;
+    font-size: $font-size-sm;
+  }
+
+  &-paginator {
+    border: none;
+    border-top: 1px solid $p-card-border;
+    background: transparent;
+    padding: .5rem 0 0;
+    flex-shrink: 0;
+    font-size: $font-size-sm;
+
+    .p-paginator {
+      background: transparent;
+      padding: 0;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .p-paginator-pages {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .p-paginator-page,
+    .p-paginator-first,
+    .p-paginator-prev,
+    .p-paginator-next,
+    .p-paginator-last,
+    .p-paginator-element {
+      min-width: $min-max-width-height-small;
+      min-height: $min-max-width-height-small;
+      max-width: $min-max-width-height-small;
+      max-height: $min-max-width-height-small;
+      background: transparent;
+      border: none;
+      border-radius: 50%;
+      color: $secondary-text-color;
+      transition:
+        background-color 0.15s,
+        color 0.15s;
+      box-shadow: none;
+
+      &:hover:not(.p-disabled, .p-highlight, .p-paginator-page-selected) {
+        background: $bg-green-color-05;
+        color: $white-text-color;
+      }
+
+      &.p-highlight,
+      &.p-paginator-page-selected {
+        background: $primary-selected-color;
+        color: $primary-color;
+      }
+
+      &.p-disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+    }
+
+    .p-paginator-page {
+      max-width: none;
+      min-width: $min-max-width-height-small;
+      padding: 0 0.25rem;
+    }
+
+    .p-paginator-icon {
+      color: inherit;
+    }
+
+    .p-paginator-current {
+      color: $secondary-text-color;
+    }
+  }
+}
