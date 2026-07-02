@@ -13,7 +13,7 @@
       <ad-input-text
         :model-value="editValue"
         class="translation-manager-input"
-        ad-type="main"
+        nui-type="main"
         @update:model-value="$emit('update:editValue', $event)"
       />
     </div>
@@ -22,14 +22,14 @@
       <ad-button
         class="translation-manager-row-save"
         :disabled="!changed || saving"
-        ad-type="main"
+        nui-type="main"
         icon="prime:save"
         text
         @click="$emit('save')"
       />
       <ad-button
         class="translation-manager-row-reset"
-        ad-type="main"
+        nui-type="main"
         :disabled="!changed"
         icon="prime:undo"
         text

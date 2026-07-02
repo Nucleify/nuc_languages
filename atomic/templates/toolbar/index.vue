@@ -23,7 +23,7 @@
         icon="prime:save"
         :disabled="changedCount === 0"
         :loading="savingAll"
-        ad-type="main"
+        nui-type="main"
         class="translation-manager-save-all-btn"
         @click="$emit('saveAll')"
       />

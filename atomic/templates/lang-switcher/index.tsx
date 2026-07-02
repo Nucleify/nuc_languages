@@ -41,7 +41,7 @@ export function NucLangSwitcher(): JSX.Element {
       optionValue="code"
       options={NUC_LOCALES}
       value={currentLang}
-      adType="main"
+      nuiType="main"
       onChange={(e) => switchLanguage(e.value as string)}
     />
   )

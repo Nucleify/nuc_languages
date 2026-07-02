@@ -2,7 +2,7 @@
   <ad-select
     v-model="selectedLang"
     :options="NUC_LOCALES"
-    ad-type="main"
+    nui-type="main"
     option-label="name"
     option-value="code"
     class="nuc-lang-switcher"

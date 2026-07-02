@@ -47,7 +47,7 @@ export function NucTranslationToolbar({
           icon="prime:save"
           disabled={changedCount === 0}
           loading={savingAll}
-          adType="main"
+          nuiType="main"
           className="translation-manager-save-all-btn"
           onClick={onSaveAll}
         />

@@ -8,7 +8,7 @@
       <ad-input-text
         :model-value="searchQuery"
         :placeholder="t('translation-search-placeholder')"
-        ad-type="main"
+        nui-type="main"
         class="translation-manager-search-input"
         @update:model-value="$emit('update:searchQuery', $event)"
         @keyup.enter="$emit('search')"

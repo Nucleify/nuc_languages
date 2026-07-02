@@ -40,7 +40,7 @@ export function NucTranslationSidebar({
             if (e.key === 'Enter') onSearch()
           }}
           placeholder={t('translation-search-placeholder')}
-          adType="main"
+          nuiType="main"
           className="translation-manager-search-input"
         />
       </div>

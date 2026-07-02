@@ -34,7 +34,7 @@ export function NucTranslationRow({
           value={editValue}
           onChange={(e) => onEditValueChange(e.target.value)}
           className="translation-manager-input"
-          adType="main"
+          nuiType="main"
         />
       </div>
 
@@ -42,14 +42,14 @@ export function NucTranslationRow({
         <AdButton
           className="translation-manager-row-save"
           disabled={!changed || saving}
-          adType="main"
+          nuiType="main"
           icon="prime:save"
           text
           onClick={onSave}
         />
         <AdButton
           className="translation-manager-row-reset"
-          adType="main"
+          nuiType="main"
           disabled={!changed}
           icon="prime:undo"
           text
