@@ -5,8 +5,29 @@
       { 'translation-manager-row-changed': changed },
     ]"
   >
-    <div class="translation-manager-row-key">
-      <span class="translation-manager-key-label">{{ item.key }}</span>
+    <div class="translation-manager-row-header">
+      <div class="translation-manager-row-key">
+        <span class="translation-manager-key-label">{{ item.key }}</span>
+      </div>
+
+      <div class="translation-manager-row-actions">
+        <ad-button
+          class="translation-manager-row-save"
+          :disabled="!changed || saving"
+          nui-type="main"
+          icon="prime:save"
+          text
+          @click="$emit('save')"
+        />
+        <ad-button
+          class="translation-manager-row-reset"
+          nui-type="main"
+          :disabled="!changed"
+          icon="prime:undo"
+          text
+          @click="$emit('reset')"
+        />
+      </div>
     </div>
 
     <div class="translation-manager-row-value">
@@ -15,25 +36,6 @@
         class="translation-manager-input"
         nui-type="main"
         @update:model-value="$emit('update:editValue', $event)"
-      />
-    </div>
-
-    <div class="translation-manager-row-actions">
-      <ad-button
-        class="translation-manager-row-save"
-        :disabled="!changed || saving"
-        nui-type="main"
-        icon="prime:save"
-        text
-        @click="$emit('save')"
-      />
-      <ad-button
-        class="translation-manager-row-reset"
-        nui-type="main"
-        :disabled="!changed"
-        icon="prime:undo"
-        text
-        @click="$emit('reset')"
       />
     </div>
   </div>

@@ -1,6 +1,6 @@
 import { unwrapApiBody } from './translation_api'
 
-import { resolveApiUrl } from '../../../../nuc_api/utils/api_request'
+import { resolveApiUrl } from '../../nuc_api/utils/api_request'
 
 export type LocaleDict = Record<string, string>
 
